@@ -1,0 +1,50 @@
+[
+    {
+        "team_id": "1",
+        "team_name": "巨人"
+    },
+    {
+        "team_id": "2",
+        "team_name": "阪神"
+    },
+    {
+        "team_id": "3",
+        "team_name": "DeNA"
+    },
+    {
+        "team_id": "4",
+        "team_name": "広島"
+    },
+    {
+        "team_id": "5",
+        "team_name": "ヤクルト"
+    },
+    {
+        "team_id": "6",
+        "team_name": "中日"
+    },
+    {
+        "team_id": "7",
+        "team_name": "ソフトバンク"
+    },
+    {
+        "team_id": "8",
+        "team_name": "日本ハム"
+    },
+    {
+        "team_id": "9",
+        "team_name": "ロッテ"
+    },
+    {
+        "team_id": "10",
+        "team_name": "楽天"
+    },
+    {
+        "team_id": "11",
+        "team_name": "オリックス"
+    },
+    {
+        "team_id": "12",
+        "team_name": "西武"
+    }
+]
