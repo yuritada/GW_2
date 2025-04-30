@@ -1,0 +1,50 @@
+[
+    {
+        "ground_id": "1",
+        "ground_name": "東京ドーム"
+    },
+    {
+        "ground_id": "2",
+        "ground_name": "甲子園"
+    },
+    {
+        "ground_id": "3",
+        "ground_name": "横浜"
+    },
+    {
+        "ground_id": "4",
+        "ground_name": "マツダスタジアム"
+    },
+    {
+        "ground_id": "5",
+        "ground_name": "神宮"
+    },
+    {
+        "ground_id": "6",
+        "ground_name": "バンテリンドーム"
+    },
+    {
+        "ground_id": "7",
+        "ground_name": "みずほPayPay"
+    },
+    {
+        "ground_id": "8",
+        "ground_name": "エスコンF"
+    },
+    {
+        "ground_id": "9",
+        "ground_name": "ZOZOマリン"
+    },
+    {
+        "ground_id": "10",
+        "ground_name": "楽天モバイル"
+    },
+    {
+        "ground_id": "11",
+        "ground_name": "京セラD大阪"
+    },
+    {
+        "ground_id": "12",
+        "ground_name": "ベルーナドーム"
+    }
+]
