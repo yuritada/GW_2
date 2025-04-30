@@ -3,9 +3,38 @@ from bs4 import BeautifulSoup
 import json
 import csv
 import time
+import random
 import traceback
 
-debug = "Test"  # True: デバッグモード,"Test": テストモード, False: 本番モード
+debug = False  # True: デバッグモード,"Test": テストモード, False: 本番モード
+
+# 複数のユーザーエージェントをリストで準備
+USER_AGENTS = [
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:103.0) Gecko/20100101 Firefox/103.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:96.0) Gecko/20100101 Firefox/96.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.54',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.62',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0',
+    'Mozilla/5.0 (iPad; CPU OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Mobile/15E148 Safari/604.1',
+    'Mozilla/5.0 (iPad; CPU OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Mobile/15E148 Safari/604.1 [Desktop Mode]',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0'
+]
+# セッションを作成（Cookie管理用）
+session = requests.Session()
 
 def read_csv_file():
     with open("csv/1-1:team.json", "r", encoding="utf-8") as f:
@@ -21,10 +50,23 @@ def read_csv_file():
     return team_data,ground_data,players_data
 
 def scrape_baseball_score(url):
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    # ランダムなユーザーエージェントを選択
+    user_agent = random.choice(USER_AGENTS)
+    
+    # ヘッダー情報を充実させる
+    headers = {
+        'User-Agent': user_agent,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'max-age=0',
+        'DNT': '1'
+    }
 
     try:
-        response = requests.get(url, headers=headers)
+        # セッションを使用してリクエスト送信
+        response = session.get(url, headers=headers)
         response.raise_for_status()  # エラーチェック
         soup = BeautifulSoup(response.text, 'html.parser')
         if response.status_code == 200:
@@ -37,6 +79,7 @@ def scrape_baseball_score(url):
             print(f"エラーが発生しました: {e}")
         return None
 
+'''
 def add_player_id(player_data, player_id, name, team_id, uniform_number, batting_side, pitching_side):
     # 重複チェック
     # 新しい選手データを作成
@@ -76,6 +119,7 @@ def add_player_id(player_data, player_id, name, team_id, uniform_number, batting
         # エラーが発生した場合はメモリ上のデータから削除して整合性を保つ
         player_data.pop()
         return False
+'''
 
 
 def format_bb_gameRound(soup):
@@ -138,7 +182,7 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
         sbo = live_header.find('div', id='sbo')
         live = sbo.find('h4',class_="live")
         inning = live.find('em').text[0]
-        top_bottom = live.find('em').text[2]
+        top_bottom = live.find('em').text[-1]
         if top_bottom == "表":
             top_bottom = 0
         elif top_bottom == "裏":
@@ -160,6 +204,8 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
         # pitches11
         o = sbo.find('p', class_='o').find('b').text
         oc = len(o)
+        if oc != 0:
+            oc = oc - 1
 
         if debug != False:
             print("アウトカウント :",oc)
@@ -167,22 +213,16 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
         # at_bats10,11,12
         try:
             base1 = score_board.find('div', id='base1').find('span').text[0]
-            if len(base1) == 1:
-                base1 = "0"+base1
             base1 = f"2025_{team_num[top_bottom]}_{base1}"
         except:
             base1 = 0
         try:
             base2 = score_board.find('div', id='base2').find('span').text[0]
-            if len(base2) == 1:
-                base2 = "0"+base2
             base2 = f"2025_{team_num[top_bottom]}_{base2}"
         except:
             base2 = 0
         try:
             base3 = score_board.find('div', id='base3').find('span').text[0]
-            if len(base3) == 1:
-                base3 = "0"+base3
             base3 = f"2025_{team_num[top_bottom]}_{base3}"
         except:
             base3 = 0
@@ -193,9 +233,7 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
         # at_bats3,4
         pitcherR = score_board.find("div",id = "pitcherR")
         pitchernum = pitcherR.find("span",class_= "playerNo")
-        if len(pitchernum.text) == 1:
-            pitchernum = "0"+pitchernum.text
-        pitchernum = f"2025_{int(team_num[1-top_bottom])}_{(pitchernum.text.replace('#',''))}"
+        pitchernum = f"2025_{int(team_num[1-int(top_bottom)])}_{(pitchernum.text.replace('#',''))}"
         nm = pitcherR.find("td",class_= "nm")
         pitchername = nm.find('a').text
         p_side = pitcherR.find('td',class_ = 'dominantHand').text.replace("投","")
@@ -208,13 +246,10 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
             print("ピッチャー番号 :",pitchernum)
             print("ピッチャー名前 :",pitchername)
             print("ピッチャー投球側 :",p_side)
-        add_player_id(players_data, pitchernum, pitchername, team_num[1-top_bottom], pitchernum.split("_")[2], None, p_side)
 
 
         batter = score_board.find("div",id = "batter")
         batternum = batter.find("span",class_= "playerNo").text.replace("#","")
-        if len(batternum) == 1:
-            batternum = "0"+batternum
         batternum = f"2025_{team_num[top_bottom]}_{batternum}"
 
         nm = batter.find("td",class_= "nm")
@@ -228,7 +263,6 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
             print("バッター打球側 :",b_side)
             print("バッター名前 :",battername)
             print("バッター番号 :",batternum)
-        add_player_id(players_data, batternum, battername, team_num[top_bottom], batternum.split("_")[2], b_side, None)
 
         # at_bats7
         live_footer = score_board.find("div",id = "liveFooter").find("dt")
@@ -246,7 +280,7 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
         if debug != False:
             print("球場 :",stadium_id)
 
-        return [team_num,team_id,inning,top_bottom,on_time_score,oc,base1,base2,base3,pitchernum,batternum,butter_number,stadium_id]
+        return [team_num,team_id,inning,top_bottom,on_time_score,oc,base1,base2,base3,pitchernum,batternum,butter_number,stadium_id,battername]
  
     except Exception as e:
         if debug != False:
@@ -255,28 +289,13 @@ def format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data):
         traceback.print_exc()
         return None
     
-
-def 未完format_bb_splitsTable_data(soup):
-    try:
-        bb_splitsTable_data = soup.find_all('section', id='gm_memh', class_ = 'bb-splits__item target_modules')[0].find_all('table')[1].find_all('tbody')[0].find_all('tr')[1].find_all('td')[0].find_all('a')
-        # print(bb_splitsTable_data)
-        # print(len(bb_splitsTable_data))
-
-        if debug != False:
-            print("データを抽出しました:bb_splitsTable_data")
-    except Exception as e:
-        if debug != False:
-            print("エラー発生:format_bb_splitsTable_data")
-            print(f"データの抽出に失敗しました: {e}")
-        return None
     
 def format_dd_splits_table(soup):
     """pitches4~10をカバーする"""
     try:
 
         # 基本要素の取得
-        bb_modCommon01 = soup.find_all('div', class_='bb-modCommon01')[3]
-        print(bb_modCommon01)
+        bb_modCommon01 = soup.find('div', id = 'async-pitchesDetail' ,class_='bb-modCommon01')
         bb_splits_item = bb_modCommon01.find_all('section', class_='bb-splits__item')[1]
         tbody = bb_splits_item.find_all('tbody')
         
@@ -339,6 +358,41 @@ def format_dd_splits_table(soup):
             print(f"データの抽出に失敗しました: {e}")
         traceback.print_exc()
         return None
+
+def format_at_bats_8_9(soup,buttername):
+    """at_bats8,9をカバーする"""
+    try:
+        bb_splits_item_target_modules = soup.find_all('section' ,class_="bb-splits__item target_modules")
+        order = [],[]
+        for i in range(2):
+            bb_splitsTable__data_bb_splitsTable__data_text = bb_splits_item_target_modules[i].find_all('table')[0].find_all('td',class_ = "bb-splitsTable__data bb-splitsTable__data--text")
+            for player in bb_splitsTable__data_bb_splitsTable__data_text:
+                order[i].append(player.text.strip())
+        for i in range(2):
+            for j in range(len(order[i])):
+                if order[i][j] == buttername:
+                    batter_order = j+1
+                    break
+        if debug != False:
+            print("選手の順番 :",batter_order)
+
+        pitcer_order = []
+        for i in range(2):
+            battery_list = bb_splits_item_target_modules[i].find_all('table')[1].find_all('tbody')[0].find_all('tr')[1]
+            battery_list = battery_list.text.split()
+            order = len(battery_list[0].split("、"))
+            pitcer_order.append(order)
+        if debug != False:
+            print("ピッチャーの順番 :",pitcer_order)
+        return batter_order,pitcer_order
+
+
+    except Exception as e:
+        print("エラー発生:format_at_bats_8_9")
+        traceback.print_exc()
+
+
+
     
 def format_bb_split_table(soup):
     """pitches12,13をカバーする"""
@@ -381,8 +435,8 @@ def create_match_pitch_id(pitches_list,at_bats_list,match_list):
         match_list[0] = f"{match_list[1]}_{match_list[2]}_{match_list[3]}"
         at_bats_list[0] = match_list[0]
         for i in range(len(pitches_list)):
-            pitches_list[i][0] = match_list[0]
-            pitches_list[i][1] = f"{match_list[0]}_{at_bats_list[1]}_{at_bats_list[2]}_{at_bats_list[7]}_{pitches_list[i][8]}"
+            pitches_list[i][1] = match_list[0]
+            pitches_list[i][0] = f"{match_list[0]}_{at_bats_list[1]}_{at_bats_list[2]}_{at_bats_list[7]}_{pitches_list[i][8]}"
     except Exception as e:
         if debug != False:
             print("エラー発生:create_match_pitch_id")
@@ -397,26 +451,28 @@ def data_format(soup,team_data,ground_data,players_data):
         bb_liveBg_bb_liveBg_npb = format_bb_liveBg_bb_liveBg_npb(soup,team_data,ground_data,players_data)
         dd_splits_table,bs_count = format_dd_splits_table(soup)
         bb_split_table = format_bb_split_table(soup)
-        # bb_splitsTable_data = 未完format_bb_splitsTable_data(soup)
+        at_bats_8_9 = format_at_bats_8_9(soup,bb_liveBg_bb_liveBg_npb[13])
         match_list = [0 for _ in range(6)]
         # inning_score_list = [[0 for _ in range(4)]]
         at_bats_list = [0 for _ in range(13)]
-        pitches_list = [[0 for _ in range(14)] for _ in range(len(dd_splits_table))]
+        pitches_list = [[0 for _ in range(16)] for _ in range(len(dd_splits_table))]
         try:
             # pitches
             for i in range(len(dd_splits_table)):
                 pitches_list[i][2] = bb_liveBg_bb_liveBg_npb[2]
                 pitches_list[i][3] = bb_liveBg_bb_liveBg_npb[3]
-                pitches_list[i][4] = dd_splits_table[i][2]
-                pitches_list[i][5] = dd_splits_table[i][3]
-                pitches_list[i][6] = dd_splits_table[i][4]
-                pitches_list[i][7] = dd_splits_table[i][1]
-                pitches_list[i][8] = dd_splits_table[i][0] 
-                pitches_list[i][9] = bs_count[0][i]
-                pitches_list[i][10] = bs_count[1][i]
-                pitches_list[i][11] = bb_liveBg_bb_liveBg_npb[5]
-                pitches_list[i][12] = bb_split_table[i][0]
-                pitches_list[i][13] = bb_split_table[i][1]
+                pitches_list[i][4] = bb_liveBg_bb_liveBg_npb[10]
+                pitches_list[i][5] = bb_liveBg_bb_liveBg_npb[9]
+                pitches_list[i][6] = dd_splits_table[i][2]
+                pitches_list[i][7] = dd_splits_table[i][3]
+                pitches_list[i][8] = dd_splits_table[i][4]
+                pitches_list[i][9] = dd_splits_table[i][1]
+                pitches_list[i][10] = dd_splits_table[i][0] 
+                pitches_list[i][11] = bs_count[0][i]
+                pitches_list[i][12] = bs_count[1][i]
+                pitches_list[i][13] = bb_liveBg_bb_liveBg_npb[5]
+                pitches_list[i][14] = bb_split_table[i][0]
+                pitches_list[i][15] = bb_split_table[i][1]
 
             # at_bats
             at_bats_list[1] = bb_liveBg_bb_liveBg_npb[2]
@@ -426,8 +482,8 @@ def data_format(soup,team_data,ground_data,players_data):
             at_bats_list[5] = bb_liveBg_bb_liveBg_npb[4][0]
             at_bats_list[6] = bb_liveBg_bb_liveBg_npb[4][1]
             at_bats_list[7] = bb_liveBg_bb_liveBg_npb[11]
-            at_bats_list[8] = None
-            at_bats_list[9] = None
+            at_bats_list[8] = at_bats_8_9[0]
+            at_bats_list[9] = at_bats_8_9[1][at_bats_list[2]]
             at_bats_list[10] = bb_liveBg_bb_liveBg_npb[6]
             at_bats_list[11] = bb_liveBg_bb_liveBg_npb[7]
             at_bats_list[12] = bb_liveBg_bb_liveBg_npb[8]
@@ -459,41 +515,47 @@ def data_format(soup,team_data,ground_data,players_data):
         if debug != False:
             print("エラー発生:data_format")
             print(f"データの整形に失敗しました: {e}")
+            traceback.print_exc()
         return None
 
-def write_csv_file(data,memory_matchs):
+def write_csv_file(data, memory_matchs):
     try:
         if debug != False:
             print("ok")
-        if memory_matchs == []:
+            
+        # 試合IDをチェック
+        match_id = data[2][0]
+        match_exists = match_id in memory_matchs
+        
+        # 新しい試合IDの場合だけ追加
+        if not match_exists:
             with open('csv/2-1:matches.csv', 'a', newline='', encoding='utf-8') as f:
-                    writer = csv.writer(f)
-                    writer.writerow(data[2])
-                    memory_matchs.append(data[2][0])
-                    if debug != False:
-                        print("新しい試合IDを追加しました")
+                writer = csv.writer(f)
+                writer.writerow(data[2])
+                memory_matchs.append(match_id)
+                if debug != False:
+                    print("新しい試合IDを追加しました")
         else:
-            for i in range(len(memory_matchs)):
-                if memory_matchs[i] == data[2][0]:
-                    if debug != False:
-                        print("同じ試合IDが見つかりました")
-                else:
-                    with open('csv/2-1:matches.csv', 'a', newline='', encoding='utf-8') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(data[2])
-                        memory_matchs.append(data[2][0])
+            if debug != False:
+                print("同じ試合IDが見つかりました")
+        
+        # 他のデータは常に追加
         with open('csv/2-3:at_bats.csv', 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(data[1])
+            
         with open('csv/2-4:pitches.csv', 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerows(data[0])
+            
         if debug != False:
             print("CSVファイルに書き込みました")
+            
     except Exception as e:
         if debug != False:
             print("エラー発生:write_csv_file")
             print(f"CSVファイルへの書き込みに失敗しました: {e}")
+            traceback.print_exc()
 
 
 def main():
@@ -513,6 +575,8 @@ def main():
         url = "https://baseball.yahoo.co.jp/npb/game/2021029038/score?index=0110100"
         url = "https://baseball.yahoo.co.jp/npb/game/2021029136/score?index=0910400"
         url = "https://baseball.yahoo.co.jp/npb/game/2021029040/score?index=0110100"
+        url = "https://baseball.yahoo.co.jp/npb/game/2021029039/score?index=0120200"
+        url = "https://baseball.yahoo.co.jp/npb/game/2021029038/score?index=0110300"
         soup = scrape_baseball_score(url)
         rlist = data_format(soup,team_data,ground_data,players_data)
 
@@ -523,7 +587,8 @@ def main():
 
     elif debug == False:
         print("本番モードです")
-        for i in range(38,170):
+        # 開幕戦 ~ 2025/4/29までの試合を取得
+        for i in range(38,193):
             if i < 100:
                 i = "0"+str(i)
             for j in range(1,13):
@@ -531,7 +596,14 @@ def main():
                     j = "0"+str(j)
                 for k in range(1,3):
                     for l in range(1,20):
-                        time.sleep(1)
+                        # ランダムな待機時間（0.8〜1.5秒）
+                        time.sleep(random.uniform(0.8, 1.5))
+                        
+                        # 定期的に長めの休憩を入れる（自然な閲覧パターン）
+                        if random.randint(1, 30) == 1:
+                            print("少し長めの休憩を取ります...")
+                            time.sleep(random.uniform(5, 10))
+                        
                         if l < 10:
                             l = "0"+str(l)
                         url = f"https://baseball.yahoo.co.jp/npb/game/2021029{i}/score?index={j}{k}{l}00"
