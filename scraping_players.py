@@ -95,7 +95,20 @@ def main():
                         team = 10
                     soup = scrape_baseball_score(url)
                     player_data = scrape_player_data(soup)
-                    save_player_data(year,team,player_data)
+                    team_csv = team
+                    if team_csv == 2:
+                        team_csv =5
+                    elif team_csv == 4:
+                        team_csv = 6
+                    elif team_csv == 5:
+                        team_csv = 2
+                    elif team_csv == 6:
+                        team_csv = 4
+                    elif team_csv == 7:
+                        team_csv = 12
+                    elif team_csv == 12:
+                        team_csv = 7
+                    save_player_data(year,team_csv,player_data)
                     print(f"チーム {team} ,野/投 {style}の選手情報を取得しました")
                     time.sleep(1)
         except Exception as e:
