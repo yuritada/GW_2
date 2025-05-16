@@ -4,7 +4,7 @@ import json
 # CSVファイルを読み込んで辞書リストに変換
 def csv_to_json():
 
-    for csv_link in ["csv/1-1:team","csv/1-2:ground"]:
+    for csv_link in ["csv/1_1team","csv/1_2ground"]:
         data = []
         with open(csv_link+".csv", 'r', encoding='utf-8') as f:
             csv_reader = csv.DictReader(f)

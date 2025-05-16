@@ -37,12 +37,12 @@ USER_AGENTS = [
 session = requests.Session()
 
 def read_csv_file():
-    with open("csv/1-1:team.json", "r", encoding="utf-8") as f:
+    with open("csv/1_1team.json", "r", encoding="utf-8") as f:
         team_data = json.load(f)
-    with open("csv/1-2:ground.json", "r", encoding="utf-8") as f:
+    with open("csv/1_2ground.json", "r", encoding="utf-8") as f:
         ground_data = json.load(f)
     players_data = []
-    with open("csv/1-3:players.csv", "r", encoding="utf-8") as f:
+    with open("csv/1_3players.csv", "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         _header = next(reader)  # ヘッダーをスキップ
         for row in reader:
@@ -105,7 +105,7 @@ def add_player_id(player_data, player_id, name, team_id, uniform_number, batting
     
     # CSVファイルに追加（追記モード）
     try:
-        with open("csv/1-3:players.csv", "a", encoding="utf-8", newline="") as f:
+        with open("csv/1_3players.csv", "a", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             # 既存のファイルに追記するだけなのでヘッダーは書き込まない
             writer.writerow(new_player)
@@ -529,7 +529,7 @@ def write_csv_file(data, memory_matchs):
         
         # 新しい試合IDの場合だけ追加
         if not match_exists:
-            with open('csv/2-1:matches.csv', 'a', newline='', encoding='utf-8') as f:
+            with open('csv/2_1matches.csv', 'a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 writer.writerow(data[2])
                 memory_matchs.append(match_id)
@@ -540,11 +540,11 @@ def write_csv_file(data, memory_matchs):
                 print("同じ試合IDが見つかりました")
         
         # 他のデータは常に追加
-        with open('csv/2-3:at_bats.csv', 'a', newline='', encoding='utf-8') as f:
+        with open('csv/2_3at_bats.csv', 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(data[1])
             
-        with open('csv/2-4:pitches.csv', 'a', newline='', encoding='utf-8') as f:
+        with open('csv/2_4pitches.csv', 'a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerows(data[0])
             
