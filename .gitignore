@@ -11,3 +11,5 @@ wheels/
 
 html
 *.zip
+
+.DS_Store
