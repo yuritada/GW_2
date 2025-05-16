@@ -44,7 +44,7 @@ def scrape_player_data(soup):
 def save_player_data(year,team,player_data):
     try:
         for player in player_data:
-            with open("csv/1-3:players.csv", "a", encoding="utf-8", newline="") as f:
+            with open("csv/1_3players.csv", "a", encoding="utf-8", newline="") as f:
                 player.append(team)
                 player.append(player[0])
                 player.append(None)
