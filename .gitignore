@@ -13,3 +13,5 @@ html
 *.zip
 
 .DS_Store
+
+/plots
